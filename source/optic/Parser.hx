@@ -1,18 +1,16 @@
 package optic;
 
+using StringTools;
+
 /**
 * The class that converts osu files to CNE readable jsons. I'm out of names, bruv.
 */
 class Parser {
 
-	public function parseFromText(text:String):Dynamic {
-	    var theOneStrumline:Dynamic =
-    		{
-    		    type: 1,
-    			position: "bf",
-    			notes: [],
-    		    characters: ["bf"]
-    		};
+	public static function parseFromText(text:String):Dynamic {
+
+
+        var notes:Array<Dynamic> = [];
 
 		var meta:Map<String, String> = [];
 		var timingPoints:Array<Dynamic> = [];
@@ -20,7 +18,7 @@ class Parser {
 
 		var iniSections:Array<String> = ["[General]", "[Editor]", "[Metadata]", "[Difficulty]", "[Colours]"];
 
-		for (line in text.split("\n")) {
+		for (line in text.split("\r\n")) {
 		    if (line.charAt(0) == "[") {
 				curSection = line;
 				continue;
@@ -28,22 +26,22 @@ class Parser {
 
 			// if check passes, add to meta
 			if (iniSections.contains(curSection)) {
-			    meta.set(line.substr(0, line.indexOf(":") - 1), line.substr(line.indexOf(":") + 1));
+			    meta.set(line.substr(0, line.indexOf(":")).trim(), line.substr(line.indexOf(":") + 1).trim());
 				continue;
 			}
 
 			switch (curSection) {
-			    case "[HitSection]":
+			    case "[HitObjects]":
 					// now we can do some bullshit
 					// hold syntax: x,y,time,type,hitSound,endTime:hitSample
 					var split:Array<String> = line.split(",");
-					split[5] = split[5].substr(0, split[5].indexOf(":")-1);
-
-					theOneStrumline.notes.push({
+					if (split[5] == null) break;
+					var endtime = split[5].substr(0, split[5].indexOf(":")-1);
+					notes.push({
 					    time: Std.parseFloat(split[2]),
 						id: Math.floor(Std.parseFloat(split[0]) / 512 * 4),
 						type: 0,
-						sLen: Std.parseFloat(split[2]) - Std.parseFloat(split[5])
+						sLen: Std.parseFloat(split[2]) - endtime
 					});
 
 				case "[TimingPoints]":
@@ -55,12 +53,12 @@ class Parser {
 						//
 						// as of right now we dont need to worry about inherited ones since there wont be any
 						// sv functionality
-					if (split[6] != "1") {
+					if (split[6] == "1") {
 					    timingPoints.push
 						({
 							time: Std.parseFloat(split[0]),
 							name: "BPM Change",
-							params: [ 1 / Std.parseFloat(split[1]) * 60],
+							params: [ 1 / Std.parseFloat(split[1]) * 60 * 1000],
 							global: true
 						});
 					}
@@ -71,24 +69,33 @@ class Parser {
 
 		}
 
-		var theMeta:Dynamic =
-            {
-                name: meta.get("TitleUnicode"),
-                bpm: 0,
-                customValues: meta,
-                difficulties: [meta.get("Version")]
-            }
+		meta.set("FolderPath", meta["BeatmapSetID"] + " " + meta["Title"]);
+		meta.set("TimingPoints", timingPoints);
+
+        var theOneStrumline:Dynamic =
+      		{
+      		    type: 1,
+     			position: "bf",
+     			notes: notes,
+      		    characters: ["bf"]
+      		};
 
         var output:Dynamic =
-        {
-            strumLines: [theOneStrumline],
-        	stage: "stage",
-        	scrollSpeed: 3.2,
-        	noteTypes: [],
-        	meta: theMeta,
-        	events: timingPoints,
-        	codenameChart: false,
-        };
+            {
+                strumLines: [theOneStrumline],
+            	stage: "stage",
+            	scrollSpeed: 3.2,
+            	noteTypes: [],
+            	meta:
+                    {
+                        name: meta["Title"],
+                        bpm: timingPoints[0].params[0],
+                        customValues: meta,
+                        difficulties: [meta["Version"]]
+                    },
+            	events: timingPoints,
+            	codenameChart: false,
+            };
 
 		return output;
 	}
