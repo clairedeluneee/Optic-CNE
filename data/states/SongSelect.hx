@@ -25,9 +25,13 @@ var uiCam = Utils.makeCamera(true);
 var preview;
 var titleCache = "";
 
+var background;
 var indicatorBump = Utils.makeRect(0, 0, 1, 32, 0xffffffff, false);
 
 function create() {
+    background = new FlxSprite();
+    background.alpha = 0.5;
+    add(background);
     loader = loadAll();
 
     loader.onComplete( function(d) { makeAll(d); chartData = d; });
@@ -58,11 +62,20 @@ function changeSel(delta) {
 
     CoolUtil.playMenuSFX();
     PlayState.SONG = chartData[currentSelection];
+    var folderPath = "maps/" + folderMap[PlayState.SONG.meta.customValues["BeatmapSetID"]] + "/";
+
+    background.loadGraphic(Paths.file(folderPath + PlayState.SONG.meta.customValues["BackgroundImage"]));
+
+    var scale = Math.min(FlxG.width / background.width, FlxG.height / background.height);
+    background.scale.set(scale, scale);
+
+    background.x = FlxG.width / 2 - background.width / 2;
+    background.y = FlxG.height / 2 - background.height / 2;
 
     if (titleCache != PlayState.SONG.meta.name) {
         titleCache = PlayState.SONG.meta.name;
         var path = Paths.file(
-            "maps/" + folderMap[PlayState.SONG.meta.customValues["BeatmapSetID"]] + "/" + PlayState.SONG.meta.customValues["AudioFilename"]
+            folderPath + PlayState.SONG.meta.customValues["AudioFilename"]
         );
 
         CoolUtil.playMusic(
@@ -125,6 +138,7 @@ function loadAll() {
         done++;
         promise.progress(done, toParse.length);
         folderMap.set(cd[done-1].meta.customValues["BeatmapSetID"], folders[done-1]);
+        cd[done-1].meta.customValues.set("FolderLocation", folders[done-1]);
     }
     promise.complete(cd);
 

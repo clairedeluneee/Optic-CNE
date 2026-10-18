@@ -14,6 +14,8 @@ class Parser {
 
 		var meta:Map<String, String> = [];
 		var timingPoints:Array<Dynamic> = [];
+		var storyboardElements:Array<Dynamic> = []; // this is just to facilitate the background, i aint implementing storyboarding but it is there for future me to pick up
+		var breaks:Array<Dynamic> = [];
 		var curSection:String = "";
 
 		var iniSections:Array<String> = ["[General]", "[Editor]", "[Metadata]", "[Difficulty]", "[Colours]"];
@@ -61,6 +63,13 @@ class Parser {
 							params: [ 1 / Std.parseFloat(split[1]) * 60 * 1000],
 							global: true
 						});
+					}
+
+				case "[Events]":
+				    var split:Array<String> = line.split(",");
+					if (split[0].trim() == "0" && split[1].trim() == "0") {
+					    meta.set("BackgroundImage", split[2].trim().replace("\"", ""));
+					    continue;
 					}
 
 			    default:
