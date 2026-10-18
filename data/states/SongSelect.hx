@@ -24,6 +24,9 @@ var uiCam = Utils.makeCamera(true);
 
 var preview;
 var titleCache = "";
+
+var indicatorBump = Utils.makeRect(0, 0, 1, 32, 0xffffffff, false);
+
 function create() {
     loader = loadAll();
 
@@ -31,13 +34,19 @@ function create() {
     loader.onProgress( function(p, t) { trace("Loaded: " + p + "/" + t); });
 
     changeSel(0);
+
+    add(indicatorBump);
+    indicatorBump.origin.x = 0;
+    indicatorBump.y = FlxG.height / 2 - indicatorBump.height / 2;
 }
 
 function update() {
     if (FlxG.keys.justPressed.DOWN) changeSel(1);
     if (FlxG.keys.justPressed.UP) changeSel(-1);
 
-    selCam.scroll.y = CoolUtil.fpsLerp(selCam.scroll.y, currentSelection * 48 - FlxG.height / 2 + 24, 0.5);
+    selCam.scroll.y = CoolUtil.fpsLerp(selCam.scroll.y, currentSelection * 48 - FlxG.height / 2 + 32, 0.5);
+
+    indicatorBump.scale.x = 12 - 8 * FlxEase.circOut(Conductor.curBeatFloat - Conductor.curBeat);
 }
 
 
