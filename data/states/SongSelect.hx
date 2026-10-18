@@ -64,7 +64,7 @@ function changeSel(delta) {
             PlayState.SONG.meta.customValues["TimingPoints"][0].params[0]
         );
 
-        Conductor.songOffset = PlayState.SONG.meta.customValues["TimingPoints"][0].params[0]
+        Conductor.songOffset = PlayState.SONG.meta.customValues["TimingPoints"][0].time;
     }
 }
 
