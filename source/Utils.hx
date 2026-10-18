@@ -12,4 +12,10 @@ class Utils {
 			FlxG.cameras.add(cam, false);
 		return cam;
 	}
+	public static function makeRect(x:Float, y:Float, width:Float, height:Float, color:Int, solid:Bool = false):FlxSprite {
+		if (!solid)
+			return new FlxSprite(x, y).makeGraphic(width, height, color);
+
+		return new FlxSprite(x, y).makeSolid(width, height, color);
+	}
 }
