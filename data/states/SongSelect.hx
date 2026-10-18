@@ -64,7 +64,13 @@ function changeSel(delta) {
             PlayState.SONG.meta.customValues["TimingPoints"][0].params[0]
         );
 
+
+        FlxG.sound.music.pause();
+        FlxG.sound.music.time = Std.parseFloat(PlayState.SONG.meta.customValues["PreviewTime"]);
+        FlxG.sound.music.play();
+
         Conductor.songOffset = PlayState.SONG.meta.customValues["TimingPoints"][0].time;
+        Conductor.songPosition = FlxG.sound.music.time;
     }
 }
 
