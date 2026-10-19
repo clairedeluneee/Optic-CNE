@@ -44,13 +44,17 @@ function create() {
     indicatorBump.y = FlxG.height / 2 - indicatorBump.height / 2;
 }
 
-function update() {
+function update(deltaTime) {
     if (FlxG.keys.justPressed.DOWN) changeSel(1);
     if (FlxG.keys.justPressed.UP) changeSel(-1);
 
     selCam.scroll.y = CoolUtil.fpsLerp(selCam.scroll.y, currentSelection * 48 - FlxG.height / 2 + 32, 0.5);
+    selCam.scroll.x = CoolUtil.fpsLerp(selCam.scroll.x, currentSelection * 24, 0.5);
 
     indicatorBump.scale.x = 12 - 8 * FlxEase.circOut(Conductor.curBeatFloat - Conductor.curBeat);
+
+    if (FlxG.sound.music.volume < 1) FlxG.sound.music.volume += deltaTime * 2;
+    background.alpha = 0.5 * FlxG.sound.music.volume;
 }
 
 
@@ -91,6 +95,8 @@ function changeSel(delta) {
         FlxG.sound.music.time = Std.parseFloat(PlayState.SONG.meta.customValues["PreviewTime"]);
         FlxG.sound.music.play();
 
+        FlxG.sound.music.volume = 0.5;
+
         Conductor.songOffset = PlayState.SONG.meta.customValues["TimingPoints"][0].time;
         Conductor.songPosition = FlxG.sound.music.time;
     }
@@ -100,11 +106,12 @@ var index = 0;
 function makeAll(chartd) {
     for (d in chartd) {
         var targ = 16 + 48 * index;
+        var theX = 16 + 24 * index;
 
-        var strain = Utils.makeText(16, targ - 2, Math.floor(Strain.getStrainOfStrumline(d.strumLines[0]).average), 32);
+        var strain = Utils.makeText(theX, targ - 2, Math.floor(Strain.getStrainOfStrumline(d.strumLines[0]).average), 32);
 
-        var title = Utils.makeText(16 + 48, targ, d.meta.name, 16);
-        var artist = Utils.makeText(16 + 48, targ + 16, d.meta.customValues["Artist"] + " - " + d.meta.difficulties[0], 12);
+        var title = Utils.makeText(theX + 48, targ, d.meta.name, 16);
+        var artist = Utils.makeText(theX + 48, targ + 16, d.meta.customValues["Artist"] + " - " + d.meta.difficulties[0], 12);
 
         for (m in [strain, title, artist]) {
             m.camera = selCam;
