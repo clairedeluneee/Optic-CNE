@@ -16,6 +16,9 @@ class Parser {
 		var timingPoints:Array<Dynamic> = [];
 		var storyboardElements:Array<Dynamic> = []; // this is just to facilitate the background, i aint implementing storyboarding but it is there for future me to pick up
 		var breaks:Array<Dynamic> = [];
+
+		var keyCount:Int = -1;
+
 		var curSection:String = "";
 
 		var iniSections:Array<String> = ["[General]", "[Editor]", "[Metadata]", "[Difficulty]", "[Colours]"];
@@ -32,6 +35,8 @@ class Parser {
 				continue;
 			}
 
+			if (keyCount == -1 && meta.exists("CircleSize")) keyCount = Std.parseInt(meta["CircleSize"]);
+
 			switch (curSection) {
 			    case "[HitObjects]":
 					// now we can do some bullshit
@@ -41,7 +46,7 @@ class Parser {
 					var endtime = split[5].substr(0, split[5].indexOf(":")-1);
 					notes.push({
 					    time: Std.parseFloat(split[2]),
-						id: Math.floor(Std.parseFloat(split[0]) / 512 * 4),
+						id: Math.floor(Std.parseFloat(split[0]) / 512 * keyCount),
 						type: 0,
 						sLen: Std.parseFloat(split[2]) - endtime
 					});
@@ -86,7 +91,8 @@ class Parser {
       		    type: 1,
      			position: "bf",
      			notes: notes,
-      		    characters: ["bf"]
+      		    characters: ["bf"],
+                keyCount: keyCount
       		};
 
         var output:Dynamic =
