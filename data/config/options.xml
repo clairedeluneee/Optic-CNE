@@ -1,0 +1,14 @@
+<menu name="Optic" desc="Change how Optic does its stuff">
+    <menu name="Song Select" desc="Modify the behavior of Song Select here">
+        <choice name="Parse when" id="songselect_parseBehavior" desc="Change when maps should be parsed.">
+            <value name="On select" value="select"/>
+            <value name="All at once" value="load"/>
+        </choice>
+
+        <choice name="Song previews" id="songselect_songPreviews" desc="How should song previews be played?">
+            <value name="From preview point" value="preview"/>
+            <value name="From start" value="beginning"/>
+            <value name="Disabled" value="disabled"/>
+        </choice>
+    </menu>
+</menu>
